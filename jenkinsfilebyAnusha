@@ -38,39 +38,36 @@ node {
 //for poll scm ----> properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '5', daysToKeepStr: '', numToKeepStr: '5')), [$class: 'JobLocalConfiguration', changeReasonComment: ''], pipelineTriggers([pollSCM('* * * * *')])])
 //for build periodically---> properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '5', daysToKeepStr: '', numToKeepStr: '5')), [$class: 'JobLocalConfiguration', changeReasonComment: ''], pipelineTriggers([cron('* * * * *')])])
 //for github scm 
-properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '5', daysToKeepStr: '', numToKeepStr: '5')), [$class: 'JobLocalConfiguration', changeReasonComment: ''], pipelineTriggers([githubPush()])])
+ 
+ properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '5', daysToKeepStr: '', numToKeepStr: '5')), [$class: 'JobLocalConfiguration', changeReasonComment: ''], pipelineTriggers([githubPush()])])
 
 def mavenHome = tool name: 'Maven-3.8.5'
 
 try {
 
  notifyBuild('STARTED')
-//get code from github
 
+//get code from github
 stage('GetCodeFromGIT'){
 git branch: 'development', credentialsId: '101cb3ba-6f79-42c1-bede-3d82e1aa0651', url: 'https://github.com/devopstraininganu/maven-web-application.git'
 }
 
 //build using maven
-
 stage('MavenBuild'){
 sh "${mavenHome}/bin/mvn clean package"
 }
 
 //get sonarqube report
-
 stage('getsonarqubereport'){
 sh "${mavenHome}/bin/mvn sonar:sonar"
 }
 
 //add to nexus repo's
-
 stage('addtonexus'){
 sh "${mavenHome}/bin/mvn deploy"
 }
 
 //Deploy to TOMCAT server
-
 stage('deploytotomcat'){
 sshagent(['0d3a5b75-656d-4a9d-ae49-76c4914637bf']) {
   sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@13.126.213.199:/opt/apache-tomcat-9.0.62/webapps"
