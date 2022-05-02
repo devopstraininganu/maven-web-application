@@ -1,0 +1,101 @@
+
+def notifyBuild(String buildStatus = 'STARTED') {
+  // build status of null means successful
+  buildStatus =  buildStatus ?: 'SUCCESSFUL'
+
+  // Default values
+  def colorName = 'RED'
+  def colorCode = '#00FF00'
+  def subject = "${buildStatus}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'"
+  def summary = "${subject} (${env.BUILD_URL})"
+
+  // Override default values based on build status
+  if (buildStatus == 'STARTED') {
+    color = 'YELLOW'
+    colorCode = '#FFFF00'
+  }
+ else if (buildStatus == 'SUCCESSFUL') {
+    color = 'GREEN'
+    colorCode = '#FF0000'
+  } 
+else {
+    color = 'RED'
+    colorCode = '#00FF00'
+  }
+
+  // Send notifications
+  slackSend (color: colorCode, message: summary)
+}
+
+pipeline{
+
+  agent any 
+
+  tools {
+  maven 'Maven-3.8.5'
+  }
+  options {
+  timestamps()
+   buildDiscarder logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '5')
+}
+    triggers {
+        pollSCM ('* * * * *')
+  //cron ('* * * * *')
+}
+ 
+ stages{
+
+//get code from Git
+
+  stage('getcodefromgit'){
+	steps{
+	    notifyBuild('STARTED')
+	git branch: 'development', credentialsId: '101cb3ba-6f79-42c1-bede-3d82e1aa0651', url: 'https://github.com/devopstraininganu/maven-web-application.git'
+	}
+	}
+//build using maven
+
+stage('MavenBuild'){
+steps{
+sh "mvn clean package"
+}
+}
+
+//get sonarqube report
+
+stage('getsonarqubereport'){
+steps{
+sh "mvn sonar:sonar"
+}
+}
+
+//add to nexus repo's
+
+stage('addtonexus'){
+steps{
+sh "mvn deploy"
+}
+}
+
+//Deploy to TOMCAT server
+
+stage('deploytotomcat'){
+steps{
+sshagent(['0d3a5b75-656d-4a9d-ae49-76c4914637bf']) {
+  sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@13.127.40.189:/opt/apache-tomcat-9.0.62/webapps"
+}
+}
+}
+  }//stages closing
+ post {
+  always {
+    notifyBuild(currentBuild.result)
+  }
+  success {
+      notifyBuild(currentBuild.result)
+     }
+  failure {
+   notifyBuild(currentBuild.result)
+  }
+ }
+    }//pipeline closing
