@@ -99,7 +99,7 @@
 	    <repository>
 	      <id>nexus</id>
 	      <name>Mithun Technologies Releases Nexus Repository</name>
-	      <url>http://65.2.153.72:9490/anusha/repository/meesho-relesae/</url>
+	      <url>http://65.2.153.72:9490/anusha/repository/meesho-release/</url>
 	     </repository>
 	    
 	    <snapshotRepository>
