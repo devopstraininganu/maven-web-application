@@ -1,4 +1,4 @@
-/*   //function to send slack notifications
+  //function to send slack notifications
 
 def notifyBuild(String buildStatus = 'STARTED') {
   // build status of null means successful
@@ -26,7 +26,7 @@ else {
 
   // Send notifications
   slackSend (color: colorCode, message: summary)
-} */
+} 
 node {
     
     echo "job name is : ${env.JOB_NAME}"
@@ -73,12 +73,12 @@ sshagent(['0d3a5b75-656d-4a9d-ae49-76c4914637bf']) {
   sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@3.110.161.50:/opt/apache-tomcat-9.0.62/webapps"
 }
 }
-/*   }//try closing
+   }//try closing
 	catch(e)
 	{
 	currentBuild.result = "FAILED"
 	}
 	finally{
 	notifyBuild(currentBuild.result)
-	} */
+	} 
    }//node closing
