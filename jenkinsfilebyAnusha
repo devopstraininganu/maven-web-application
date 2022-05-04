@@ -27,7 +27,7 @@ else {
   // Send notifications
   slackSend (color: colorCode, message: summary)
 } 
-node {
+node('slaves') {
     
     echo "job name is : ${env.JOB_NAME}"
     echo "Node name is : ${env.NODE_NAME}"
@@ -43,9 +43,9 @@ node {
 
 def mavenHome = tool name: 'Maven-3.8.5'
 
-//try {
+try {
 
- //notifyBuild('STARTED')
+ notifyBuild('STARTED')
 
 //get code from github
 stage('GetCodeFromGIT'){
