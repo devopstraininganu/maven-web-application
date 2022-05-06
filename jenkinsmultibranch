@@ -1,0 +1,21 @@
+node {  
+
+    
+    echo "job name is : ${env.JOB_NAME}"
+    echo "Node name is : ${env.NODE_NAME}"
+    echo "jenkins url is : ${env.JENKINS_URL}"
+    echo "build url is : ${env.BUILD_URL}"
+
+def mavenHome = tool name: 'Maven-3.8.5'
+
+
+//get code from github
+stage('GetCodeFromGIT'){
+git branch: 'development', credentialsId: '101cb3ba-6f79-42c1-bede-3d82e1aa0651', url: 'https://github.com/devopstraininganu/maven-web-application.git'
+}
+
+//build using maven
+stage('MavenBuild'){
+sh "${mavenHome}/bin/mvn clean package"
+}
+}//node closing
