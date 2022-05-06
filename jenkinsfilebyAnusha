@@ -1,4 +1,4 @@
-  //function to send slack notifications
+ //function to send slack notifications
 
 def notifyBuild(String buildStatus = 'STARTED') {
   // build status of null means successful
@@ -27,7 +27,8 @@ else {
   // Send notifications
   slackSend (color: colorCode, message: summary)
 } 
-node('slaves') {
+node('slaves') {  
+
     
     echo "job name is : ${env.JOB_NAME}"
     echo "Node name is : ${env.NODE_NAME}"
@@ -45,7 +46,7 @@ def mavenHome = tool name: 'Maven-3.8.5'
 
 try {
 
- notifyBuild('STARTED')
+ // notifyBuild('STARTED')
 
 //get code from github
 stage('GetCodeFromGIT'){
